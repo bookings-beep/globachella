@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Coachella 2026 live stream schedule in your local time. Every stage, every set, wherever you are.">
+<title>Globachella 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,700;0,800;0,900;1,900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:    #5BC8C0;
+  --blue:    #4A9FD4;
+  --ink:     #111;
+  --white:   #fff;
+  --sand:    rgba(255,255,255,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background: linear-gradient(150deg, #5BC8C0 0%, #4A9FD4 50%, #5B8FD4 100%);
+  color: var(--white);
+  min-height: 100dvh;
+}
+
+/* ── SCREENS ── */
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; transition: opacity .35s, transform .35s; }
+.screen.hidden { opacity: 0; pointer-events: none; transform: scale(0.97); }
+
+/* ══════════════════════════════════════
+   WELCOME SCREEN
+══════════════════════════════════════ */
+#welcome {
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px 40px;
+  gap: 0;
+}
+.logo-wrap { text-align: center; margin-bottom: 32px; }
+.logo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 52px;
+  letter-spacing: -.02em;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 3px 0 rgba(0,0,0,0.15);
+}
+.logo span { font-style: italic; color: rgba(255,255,255,0.75); }
+.tagline {
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  margin-top: 8px;
+  letter-spacing: .01em;
+  line-height: 1.5;
+}
+
+.tz-card {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 16px;
+}
+.tz-detected-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 6px;
+}
+.tz-detected-val {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.tz-detected-zone {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+}
+
+.btn-primary {
+  width: 100%;
+  max-width: 340px;
+  background: #fff;
+  color: var(--teal);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: .02em;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.btn-primary:active { transform: scale(0.97); }
+
+.change-tz-btn {
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  font-family: 'Nunito Sans', sans-serif;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px;
+}
+
+/* timezone picker overlay */
+.tz-picker {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: flex-end;
+  transition: opacity .25s;
+}
+.tz-picker.hidden { opacity: 0; pointer-events: none; }
+.tz-sheet {
+  background: #1a2a3a;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 20px 40px;
+  width: 100%;
+  max-height: 70dvh;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.tz-sheet h3 { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px; color: #fff; }
+.tz-search {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 15px;
+  font-family: 'Nunito Sans', sans-serif;
+  width: 100%;
+  outline: none;
+}
+.tz-search::placeholder { color: rgba(255,255,255,0.4); }
+.tz-list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tz-option {
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: background .1s;
+}
+.tz-option:active { background: rgba(255,255,255,0.15); }
+.tz-option-name { font-size: 14px; font-weight: 600; color: #fff; }
+.tz-option-offset { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+/* ══════════════════════════════════════
+   MAIN SCREEN
+══════════════════════════════════════ */
+#main { flex-direction: column; }
+
+.main-hdr {
+  flex-shrink: 0;
+  padding: 10px 14px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.main-logo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  font-style: italic;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.12);
+  line-height: 1;
+}
+.main-location {
+  font-size: 9px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-top: 1px;
+  cursor: pointer;
+}
+.live-badge {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(0,0,0,0.25);
+  color: #fff; font-size: 9px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px;
+  letter-spacing: .08em; text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.live-dot { width: 5px; height: 5px; border-radius: 50%; background: #ff4444; animation: blink 1.2s infinite; flex-shrink: 0; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* Day switcher */
+.day-switcher {
+  flex-shrink: 0;
+  display: flex;
+  gap: 6px;
+  padding: 8px 14px 6px;
+}
+.day-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  padding: 7px 4px;
+  color: rgba(255,255,255,0.7);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.day-btn .day-date { font-size: 8px; font-weight: 600; opacity: .7; letter-spacing: .04em; }
+.day-btn.active {
+  background: #fff;
+  border-color: #fff;
+  color: var(--teal);
+}
+.day-btn.active .day-date { color: var(--blue); opacity: 1; }
+
+/* clock bar */
+.clock-bar {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  padding: 0 14px 4px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+}
+
+/* STAGE GRID */
+.grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 3px;
+  padding: 0 3px 3px;
+  overflow: hidden;
+}
+.grid .card:last-child { grid-column: 1 / -1; }
+
+.card {
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: transform .1s;
+}
+.card:active { transform: scale(0.97); }
+.card.is-live { box-shadow: 0 0 0 2.5px #fff, 0 0 14px rgba(255,255,255,0.45); }
+
+.card-top {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 8px 6px;
+  position: relative; overflow: hidden;
+}
+.thumb-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  filter: grayscale(100%) contrast(1.15) brightness(0.8);
+}
+.thumb-overlay { position: absolute; inset: 0; mix-blend-mode: multiply; opacity: 0.85; }
+.thumb-grad { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.6) 100%); }
+.card-inner { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+
+.status-pill {
+  font-size: 7px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 20px; margin-bottom: 5px;
+  background: rgba(0,0,0,0.3); color: #fff;
+  border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0;
+  white-space: nowrap;
+}
+.status-pill.is-live-pill { background: rgba(200,30,30,0.7); border-color: rgba(255,100,100,0.4); }
+
+.artist {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1.05;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card:last-child .artist { font-size: 17px; }
+.card.is-ended .artist { opacity: .4; }
+
+.next-line {
+  font-size: 8px; color: rgba(255,255,255,0.75);
+  margin-top: 3px; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%; text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.play-btn {
+  position: absolute; top: 7px; right: 7px; z-index: 3;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  display: flex; align-items: center; justify-content: center;
+}
+.play-tri {
+  width: 0; height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid rgba(255,255,255,0.85);
+  margin-left: 1px;
+}
+
+.stage-banner {
+  background: #fff; padding: 4px 8px 5px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.stage-name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 8px; font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase;
+}
+
+/* footer */
+.footer {
+  flex-shrink: 0;
+  padding: 4px 14px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-credit {
+  font-size: 8px; color: rgba(255,255,255,0.35);
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.footer-credit a { color: rgba(255,255,255,0.45); text-decoration: none; }
+.footer-share {
+  font-size: 8px; color: rgba(255,255,255,0.35);
+  letter-spacing: .06em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- WELCOME SCREEN -->
+<div class="screen" id="welcome">
+  <div class="logo-wrap">
+    <div class="logo">Globa<span>chella</span></div>
+    <div class="tagline">Coachella 2026, in your time zone.<br>Every stage. Every set. Wherever you are.</div>
+  </div>
+
+  <div class="tz-card">
+    <div class="tz-detected-label">📍 Your location</div>
+    <div class="tz-detected-val" id="tz-country">Detecting...</div>
+    <div class="tz-detected-zone" id="tz-zone"></div>
+  </div>
+
+  <button class="btn-primary" id="go-btn" onclick="goMain()">Show me the schedule →</button>
+  <button class="change-tz-btn" onclick="openTzPicker()">Not you? Change location</button>
+</div>
+
+<!-- TIMEZONE PICKER -->
+<div class="tz-picker hidden" id="tz-picker">
+  <div class="tz-sheet">
+    <h3>Choose your timezone</h3>
+    <input class="tz-search" id="tz-search" placeholder="Search city or country…" oninput="filterTz(this.value)">
+    <div class="tz-list" id="tz-list"></div>
+  </div>
+</div>
+
+<!-- MAIN SCREEN -->
+<div class="screen hidden" id="main">
+  <div class="main-hdr">
+    <div>
+      <div class="main-logo">Globachella</div>
+      <div class="main-location" id="main-location" onclick="openTzPicker()">📍 — · change</div>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>Live</div>
+  </div>
+
+  <div class="day-switcher">
+    <button class="day-btn active" id="btn-fri" onclick="setDay(0)">
+      Fri <span class="day-date">Apr 11 NZT</span>
+    </button>
+    <button class="day-btn" id="btn-sat" onclick="setDay(1)">
+      Sat <span class="day-date">Apr 12 NZT</span>
+    </button>
+    <button class="day-btn" id="btn-sun" onclick="setDay(2)">
+      Sun <span class="day-date">Apr 13 NZT</span>
+    </button>
+  </div>
+
+  <div class="clock-bar" id="clk">—</div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="footer">
+    <span class="footer-credit">Built by <a href="https://drmgrp.nz" target="_blank">DRMGRP</a></span>
+    <span class="footer-share">Tap stage → Watch live</span>
+  </div>
+</div>
+
+<script>
+// ── TIMEZONE DATA ──
+const TZ_LIST = [
+  {label:'New Zealand',zone:'Pacific/Auckland',offset:12},
+  {label:'Australia (Sydney)',zone:'Australia/Sydney',offset:10},
+  {label:'Australia (Perth)',zone:'Australia/Perth',offset:8},
+  {label:'Japan / Korea',zone:'Asia/Tokyo',offset:9},
+  {label:'Singapore / Malaysia',zone:'Asia/Singapore',offset:8},
+  {label:'India',zone:'Asia/Kolkata',offset:5.5},
+  {label:'UAE / Gulf',zone:'Asia/Dubai',offset:4},
+  {label:'United Kingdom',zone:'Europe/London',offset:1},
+  {label:'Central Europe',zone:'Europe/Paris',offset:2},
+  {label:'Eastern Europe',zone:'Europe/Helsinki',offset:3},
+  {label:'South Africa',zone:'Africa/Johannesburg',offset:2},
+  {label:'Brazil (São Paulo)',zone:'America/Sao_Paulo',offset:-3},
+  {label:'Argentina',zone:'America/Argentina/Buenos_Aires',offset:-3},
+  {label:'Mexico City',zone:'America/Mexico_City',offset:-6},
+  {label:'US Eastern',zone:'America/New_York',offset:-4},
+  {label:'US Central',zone:'America/Chicago',offset:-5},
+  {label:'US Mountain',zone:'America/Denver',offset:-6},
+  {label:'US Pacific (PDT)',zone:'America/Los_Angeles',offset:-7},
+  {label:'Canada (Toronto)',zone:'America/Toronto',offset:-4},
+  {label:'Canada (Vancouver)',zone:'America/Vancouver',offset:-7},
+  {label:'Philippines',zone:'Asia/Manila',offset:8},
+  {label:'Indonesia (Jakarta)',zone:'Asia/Jakarta',offset:7},
+  {label:'Thailand / Vietnam',zone:'Asia/Bangkok',offset:7},
+  {label:'China',zone:'Asia/Shanghai',offset:8},
+  {label:'Pakistan',zone:'Asia/Karachi',offset:5},
+  {label:'Nigeria / West Africa',zone:'Africa/Lagos',offset:1},
+  {label:'Kenya / East Africa',zone:'Africa/Nairobi',offset:3},
+  {label:'Egypt',zone:'Africa/Cairo',offset:2},
+  {label:'Chile',zone:'America/Santiago',offset:-4},
+  {label:'Colombia / Peru',zone:'America/Bogota',offset:-5},
+  {label:'Venezuela',zone:'America/Caracas',offset:-4},
+  {label:'Hawaii',zone:'Pacific/Honolulu',offset:-10},
+  {label:'Alaska',zone:'America/Anchorage',offset:-8},
+  {label:'Portugal / Lisbon',zone:'Europe/Lisbon',offset:1},
+  {label:'Spain / Italy / France',zone:'Europe/Madrid',offset:2},
+  {label:'Germany / Netherlands',zone:'Europe/Berlin',offset:2},
+  {label:'Sweden / Norway',zone:'Europe/Stockholm',offset:2},
+  {label:'Poland',zone:'Europe/Warsaw',offset:2},
+  {label:'Turkey',zone:'Europe/Istanbul',offset:3},
+  {label:'Israel',zone:'Asia/Jerusalem',offset:3},
+  {label:'Saudi Arabia',zone:'Asia/Riyadh',offset:3},
+  {label:'Bangladesh',zone:'Asia/Dhaka',offset:6},
+  {label:'Nepal',zone:'Asia/Kathmandu',offset:5.75},
+  {label:'Sri Lanka',zone:'Asia/Colombo',offset:5.5},
+  {label:'Hong Kong / Taiwan',zone:'Asia/Hong_Kong',offset:8},
+  {label:'Fiji',zone:'Pacific/Fiji',offset:12},
+  {label:'Samoa',zone:'Pacific/Apia',offset:13},
+];
+
+// ── COACHELLA DATA ──
+// PDT offsets (UTC-7). Stream IDs TBD for Sat/Sun.
+const DAYS = [
+  {
+    label:'Friday', pdt_date:'Apr 10',
+    stages:[
+      {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:'2NA7XUw51oo',yt:'https://www.youtube.com/live/2NA7XUw51oo',
+       acts:[{n:'Teddy Swims',s:[17,30],e:[18,20]},{n:'The xx',s:[19,0],e:[19,55]},{n:'Sabrina Carpenter',s:[21,5],e:[22,35]},{n:'Anyma · ÆDEN',s:[24,0],e:[25,0]}]},
+      {key:'outdoor',label:'Outdoor Theatre',color:'#4FAF60',vid:'MdUBm8G41ZU',yt:'https://www.youtube.com/live/MdUBm8G41ZU',
+       acts:[{n:'Dabeull',s:[16,0],e:[16,50]},{n:'Lykke Li',s:[17,20],e:[18,10]},{n:'Dijon',s:[18,40],e:[19,30]},{n:'Turnstile',s:[20,5],e:[21,0]},{n:'Disclosure',s:[22,35],e:[23,50]},{n:'Do LaB Bonus',s:[23,55],e:[24,55]}]},
+      {key:'sahara',label:'Sahara',color:'#E07028',vid:'NlrpPqb0vwo',yt:'https://www.youtube.com/live/NlrpPqb0vwo',
+       acts:[{n:'Youna',s:[16,0],e:[16,50]},{n:'HUGEL',s:[16,50],e:[17,50]},{n:'Marlon Hoffstadt',s:[18,15],e:[19,15]},{n:'KATSEYE',s:[20,0],e:[20,45]},{n:'Levity',s:[21,15],e:[22,20]},{n:'Swae Lee',s:[22,50],e:[23,40]},{n:'Sexyy Red',s:[24,5],e:[24,55]}]},
+      {key:'mojave',label:'Mojave',color:'#D03838',vid:'HJVG2Ck3uuk',yt:'https://www.youtube.com/watch?v=HJVG2Ck3uuk',
+       acts:[{n:'BINI',s:[16,15],e:[17,0]},{n:'Central Cee',s:[17,30],e:[18,15]},{n:'Devo',s:[18,45],e:[19,40]},{n:'Moby',s:[20,10],e:[21,0]},{n:'Slayyyter',s:[21,20],e:[22,5]},{n:'Ethel Cain',s:[22,35],e:[23,25]},{n:'Blood Orange',s:[23,55],e:[24,45]}]},
+      {key:'gobi',label:'Gobi',color:'#D04888',vid:'4C5p1tdRv6c',yt:'https://www.youtube.com/live/4C5p1tdRv6c',
+       acts:[{n:'Bob Baker Marionettes',s:[16,0],e:[16,40]},{n:'NewDad',s:[16,45],e:[17,25]},{n:'Joyce Manor',s:[17,30],e:[18,10]},{n:'CMAT',s:[18,15],e:[18,55]},{n:'fakemink',s:[19,20],e:[20,0]},{n:'Holly Humberstone',s:[20,25],e:[21,10]},{n:'Joost',s:[21,50],e:[22,35]},{n:'Creepy Nuts',s:[23,5],e:[23,55]}]},
+      {key:'sonora',label:'Sonora',color:'#E07840',vid:'OGNPnQViI3g',yt:'https://www.youtube.com/live/OGNPnQViI3g',
+       acts:[{n:'Wednesday',s:[16,0],e:[16,40]},{n:'Fleshwater',s:[16,50],e:[17,30]},{n:'The Two Lips',s:[18,0],e:[18,40]},{n:'Ninajirachi',s:[19,10],e:[20,0]},{n:'Cachirula & Loojan',s:[20,25],e:[21,5]},{n:'February',s:[21,15],e:[21,45]},{n:'Hot Mulligan',s:[22,0],e:[22,45]},{n:'Carolina During',s:[22,55],e:[23,35]},{n:'Not for Radio',s:[23,50],e:[24,50]}]},
+      {key:'quasar',label:'Quasar',color:'#C8A830',vid:'1KANGsDaRvw',yt:'https://www.youtube.com/live/1KANGsDaRvw',
+       acts:[{n:'Tiga',s:[17,0],e:[19,0]},{n:'Deep Dish',s:[19,0],e:[21,0]},{n:'PAWSA',s:[21,0],e:[23,0]},{n:'Disco Lines',s:[23,0],e:[25,0]}]},
+    ]
+  },
+  {
+    label:'Saturday', pdt_date:'Apr 11',
+    stages:[
+      {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Addison Rae',s:[17,30],e:[18,20]},{n:'GIVĒON',s:[19,0],e:[19,50]},{n:'The Strokes',s:[21,0],e:[22,10]},{n:'Justin Bieber',s:[23,25],e:[25,0]}]},
+      {key:'outdoor',label:'Outdoor Theatre',color:'#4FAF60',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Los Hermanos Flores',s:[16,0],e:[17,0]},{n:'Alex G',s:[17,10],e:[18,0]},{n:'Blondshell',s:[18,10],e:[19,0]},{n:'Sombr',s:[19,5],e:[20,0]},{n:'Labrinth',s:[20,30],e:[21,30]},{n:'David Byrne',s:[22,20],e:[23,30]}]},
+      {key:'sahara',label:'Sahara',color:'#E07028',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Zulan',s:[16,0],e:[17,0]},{n:'Hamdi',s:[17,0],e:[18,0]},{n:'YOASOBI',s:[18,15],e:[19,15]},{n:'TEED',s:[19,15],e:[20,15]},{n:'Nine Inch Noize',s:[20,0],e:[21,0]},{n:'REZZ',s:[21,10],e:[22,15]},{n:'Adriatique',s:[22,30],e:[23,55]},{n:'WORSHIP',s:[23,55],e:[25,0]}]},
+      {key:'mojave',label:'Mojave',color:'#D03838',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Jack White',s:[16,0],e:[17,0]},{n:'Fujii Kaze',s:[16,50],e:[17,50]},{n:'Royel Otis',s:[17,50],e:[18,50]},{n:'Taemin',s:[19,30],e:[20,30]},{n:'PinkPantheress',s:[20,55],e:[21,55]},{n:'Interpol',s:[22,15],e:[23,30]}]},
+      {key:'gobi',label:'Gobi',color:'#D04888',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Whatmore',s:[16,5],e:[17,0]},{n:'Luísa Sonza',s:[17,10],e:[18,10]},{n:'Geese',s:[18,15],e:[19,15]},{n:'Noga Erez',s:[19,5],e:[20,0]},{n:'Davido',s:[19,50],e:[20,50]},{n:'BIA',s:[21,0],e:[22,0]},{n:'Morat',s:[22,10],e:[23,10]}]},
+      {key:'sonora',label:'Sonora',color:'#E07840',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Ecca Vandal',s:[16,20],e:[17,20]},{n:'Ceremony',s:[17,30],e:[18,30]},{n:'Rusowsky',s:[18,40],e:[19,40]},{n:'54 Ultra',s:[19,50],e:[20,50]},{n:'Die Spitz',s:[20,45],e:[21,45]},{n:'Mind Enterprises',s:[21,45],e:[22,45]},{n:'Freak Slug',s:[22,45],e:[23,45]}]},
+      {key:'quasar',label:'Quasar',color:'#C8A830',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Joezi',s:[17,0],e:[19,0]},{n:'Afrojack x Shimza',s:[19,0],e:[21,0]}]},
+    ]
+  },
+  {
+    label:'Sunday', pdt_date:'Apr 12',
+    stages:[
+      {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Tijuana Panthers',s:[16,0],e:[16,50]},{n:'Wet Leg',s:[16,45],e:[17,30]},{n:'Major Lazer',s:[18,10],e:[19,10]},{n:'Young Thug',s:[19,50],e:[20,40]},{n:'Karol G',s:[21,55],e:[23,0]}]},
+      {key:'outdoor',label:'Outdoor Theatre',color:'#4FAF60',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Gigi Perez',s:[16,0],e:[17,0]},{n:'Clipse',s:[17,15],e:[18,15]},{n:'Foster the People',s:[18,45],e:[19,45]},{n:'Laufey',s:[20,40],e:[21,40]},{n:'BIGBANG',s:[22,30],e:[23,30]}]},
+      {key:'sahara',label:'Sahara',color:'#E07028',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Girl Math',s:[16,0],e:[17,0]},{n:'BUNT.',s:[17,5],e:[18,5]},{n:'Duke Dumont',s:[18,10],e:[19,10]},{n:'Mochakk',s:[19,25],e:[20,25]},{n:'Subtronics',s:[21,5],e:[22,5]},{n:'Kaskade',s:[22,45],e:[23,45]}]},
+      {key:'mojave',label:'Mojave',color:'#D03838',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Little Simz',s:[16,25],e:[17,25]},{n:'Suicidal Tendencies',s:[17,35],e:[18,35]},{n:'Samia',s:[18,30],e:[19,30]},{n:'Iggy Pop',s:[19,10],e:[20,10]},{n:'FKA twigs',s:[20,45],e:[21,45]}]},
+      {key:'gobi',label:'Gobi',color:'#D04888',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'COBRAH',s:[16,5],e:[17,0]},{n:'Oklou',s:[17,15],e:[18,10]},{n:'Black Flag',s:[18,30],e:[19,30]},{n:'flowerovlove',s:[19,45],e:[20,30]},{n:'Tomora',s:[20,45],e:[21,30]},{n:'The Rapture',s:[21,5],e:[22,5]},{n:'The Chats',s:[22,0],e:[23,0]}]},
+      {key:'sonora',label:'Sonora',color:'#E07840',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Model/Actriz',s:[16,0],e:[17,0]},{n:'Jane Remover',s:[16,45],e:[17,45]},{n:'Los Retros',s:[17,30],e:[18,30]},{n:'RØZ',s:[18,40],e:[19,40]},{n:'DRAIN',s:[20,0],e:[21,0]},{n:'French Police',s:[21,10],e:[22,10]},{n:'Glitterer',s:[22,15],e:[23,15]}]},
+      {key:'quasar',label:'Quasar',color:'#C8A830',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Jazzy',s:[16,0],e:[18,0]},{n:'Joy (Anonymous)',s:[18,0],e:[20,0]},{n:'Fatboy Slim',s:[20,0],e:[22,0]}]},
+    ]
+  }
+];
+
+// ── STATE ──
+let userTz = null;
+let userLabel = null;
+let userOffsetHours = null;
+let currentDay = 0;
+
+// ── TIMEZONE DETECTION ──
+function detectTz() {
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const match = TZ_LIST.find(t => t.zone === zone);
+  if (match) {
+    setTz(match);
+  } else {
+    // calculate offset from browser
+    const offsetMin = -new Date().getTimezoneOffset();
+    const offsetH = offsetMin / 60;
+    const closest = TZ_LIST.reduce((best, t) => Math.abs(t.offset - offsetH) < Math.abs(best.offset - offsetH) ? t : best, TZ_LIST[0]);
+    // use raw offset
+    userTz = zone;
+    userLabel = zone.split('/').pop().replace(/_/g,' ');
+    userOffsetHours = offsetH;
+    document.getElementById('tz-country').textContent = userLabel;
+    document.getElementById('tz-zone').textContent = `UTC${offsetH >= 0 ? '+' : ''}${offsetH} · ${zone}`;
+  }
+}
+
+function setTz(tzObj) {
+  userTz = tzObj.zone;
+  userLabel = tzObj.label;
+  userOffsetHours = tzObj.offset;
+  document.getElementById('tz-country').textContent = tzObj.label;
+  document.getElementById('tz-zone').textContent = `UTC${tzObj.offset >= 0 ? '+' : ''}${tzObj.offset} · ${tzObj.zone}`;
+  document.getElementById('main-location').textContent = `📍 ${tzObj.label} · change`;
+}
+
+// ── TZ PICKER ──
+function buildTzList(filter) {
+  const list = document.getElementById('tz-list');
+  list.innerHTML = '';
+  const items = filter ? TZ_LIST.filter(t => t.label.toLowerCase().includes(filter.toLowerCase())) : TZ_LIST;
+  items.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'tz-option';
+    div.innerHTML = `<span class="tz-option-name">${t.label}</span><span class="tz-option-offset">UTC${t.offset >= 0 ? '+' : ''}${t.offset}</span>`;
+    div.onclick = () => { setTz(t); closeTzPicker(); };
+    list.appendChild(div);
+  });
+}
+function openTzPicker() {
+  buildTzList('');
+  document.getElementById('tz-picker').classList.remove('hidden');
+}
+function closeTzPicker() {
+  document.getElementById('tz-picker').classList.add('hidden');
+}
+function filterTz(val) { buildTzList(val); }
+document.getElementById('tz-picker').addEventListener('click', e => { if(e.target === document.getElementById('tz-picker')) closeTzPicker(); });
+
+// ── NAVIGATION ──
+function goMain() {
+  document.getElementById('welcome').classList.add('hidden');
+  document.getElementById('main').classList.remove('hidden');
+  render();
+}
+
+function setDay(d) {
+  currentDay = d;
+  ['fri','sat','sun'].forEach((x,i) => {
+    document.getElementById('btn-'+x).classList.toggle('active', i===d);
+  });
+  render();
+}
+
+// ── TIME CONVERSION ──
+// PDT = UTC-7. Convert PDT fractional hours to local time string.
+function pdtToLocal(pdtH, pdtM) {
+  const pdtOffset = -7;
+  const utcH = pdtH + pdtM / 60 - pdtOffset; // UTC decimal hours
+  const localH = utcH + userOffsetHours;
+  // wrap to 0-48 range for overnight
+  const h = Math.floor(localH) % 24;
+  const hh = ((h % 24) + 24) % 24;
+  const mm = Math.round((localH - Math.floor(localH)) * 60);
+  const h12 = hh % 12 === 0 ? 12 : hh % 12;
+  const ap = hh < 12 ? 'am' : 'pm';
+  return `${h12}:${mm.toString().padStart(2,'0')}${ap}`;
+}
+
+// Get local "minutes since festival start" for status comparison
+// Festival starts Fri Apr 10 4pm PDT = UTC 23:00
+function getLocalNowMins() {
+  const now = new Date();
+  // festival epoch: Apr 10 2026 23:00 UTC
+  const festEpoch = Date.UTC(2026, 3, 10, 23, 0, 0);
+  const elapsed = (now.getTime() - festEpoch) / 60000; // mins since fest start
+  return elapsed;
+}
+
+function actStartMins(dayIdx, pdtH, pdtM) {
+  // Day 0 = Fri Apr 10, offset 0. Day 1 = Sat, +1440. Day 2 = Sun, +2880
+  const pdtOffset = -7;
+  const utcH = pdtH + pdtM / 60 - pdtOffset;
+  // mins from festival epoch (Fri 4pm PDT = Fri 23:00 UTC = 0)
+  // Fri 4pm PDT = Fri 23:00 UTC. Festival epoch = Fri 23:00 UTC.
+  // actUTC = day*1440 + utcH*60
+  // But festival starts at 16:00 PDT = 23:00 UTC, so subtract 23*60 = 1380
+  return dayIdx * 1440 + utcH * 60 - 1380;
+}
+
+function getStatus(stage, dayIdx) {
+  const nowMins = getLocalNowMins();
+  const acts = [...stage.acts].sort((a,b) => actStartMins(dayIdx,...a.s) - actStartMins(dayIdx,...b.s));
+  for (let i = 0; i < acts.length; i++) {
+    const a = acts[i];
+    const st = actStartMins(dayIdx, ...a.s);
+    const en = actStartMins(dayIdx, ...a.e);
+    if (nowMins >= st && nowMins < en) return { state:'live', current:a, next:acts[i+1]||null };
+    if (nowMins < st) return { state:'upcoming', current:null, next:a };
+  }
+  return { state:'ended', current:acts[acts.length-1], next:null };
+}
+
+// ── RENDER ──
+function render() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const day = DAYS[currentDay];
+
+  day.stages.forEach(stage => {
+    const { state, current, next } = getStatus(stage, currentDay);
+    const isLive = state === 'live', isEnded = state === 'ended';
+    const artist = isLive ? current.n : next ? next.n : (current ? current.n : '—');
+    const nextAct = isLive ? next : null;
+    const bg = isEnded ? '#888' : stage.color;
+
+    const card = document.createElement('a');
+    card.className = 'card' + (isLive?' is-live':'') + (isEnded?' is-ended':'');
+    card.href = stage.yt;
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+    card.style.textDecoration = 'none';
+
+    let pillTxt, pillClass = '';
+    if (isLive) { pillTxt = '● Live now'; pillClass = 'is-live-pill'; }
+    else if (isEnded) pillTxt = 'Ended';
+    else {
+      const localStart = next ? pdtToLocal(...next.s) : '';
+      pillTxt = `Starts ${localStart}`;
+    }
+
+    const thumbSrc = stage.vid
+      ? `https://img.youtube.com/vi/${stage.vid}/maxresdefault.jpg`
+      : '';
+
+    const nextStr = nextAct
+      ? `<div class="next-line">Next · ${nextAct.n} · ${pdtToLocal(...nextAct.s)}</div>`
+      : '';
+    const endedStr = isEnded ? `<div class="next-line" style="opacity:.4">That's a wrap</div>` : '';
+
+    card.innerHTML = `
+      <div class="card-top" style="background:${bg}">
+        ${thumbSrc ? `<img class="thumb-img" src="${thumbSrc}" alt="" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+        <div class="thumb-overlay" style="background:${bg}"></div>
+        <div class="thumb-grad"></div>
+        <div class="card-inner">
+          <div class="play-btn"><div class="play-tri"></div></div>
+          <div class="status-pill ${pillClass}">${pillTxt}</div>
+          <div class="artist">${artist}</div>
+          ${nextStr}${endedStr}
+        </div>
+      </div>
+      <div class="stage-banner">
+        <span class="stage-name" style="color:${isEnded?'#999':stage.color}">${stage.label}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ── CLOCK ──
+function updateClock() {
+  if (!userOffsetHours) return;
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const local = new Date(utc + userOffsetHours * 3600000);
+  const h = local.getHours(), m = local.getMinutes().toString().padStart(2,'0'), s = local.getSeconds().toString().padStart(2,'0');
+  const h12 = h % 12 === 0 ? 12 : h % 12, ap = h < 12 ? 'am' : 'pm';
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('clk').textContent = `${userLabel} · ${h12}:${m}:${s}${ap} ${days[local.getDay()]}`;
+}
+
+// ── INIT ──
+detectTz();
+setInterval(updateClock, 1000);
+setInterval(() => { if (!document.getElementById('main').classList.contains('hidden')) render(); }, 30000);
+</script>
+</body>
+</html>
