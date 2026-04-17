@@ -234,6 +234,34 @@ body {
 }
 .day-btn.active .day-date { color: var(--blue); opacity: 1; }
 
+/* Weekend switcher */
+.wknd-switcher {
+  flex-shrink: 0;
+  display: flex;
+  gap: 6px;
+  padding: 6px 14px 0;
+}
+.wknd-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 5px 4px;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .15s;
+}
+.wknd-btn.active {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.4);
+  color: #fff;
+}
+
 /* clock bar */
 .clock-bar {
   flex-shrink: 0;
@@ -296,7 +324,8 @@ body {
   border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0;
   white-space: nowrap;
 }
-.status-pill.is-live-pill { background: rgba(200,30,30,0.7); border-color: rgba(255,100,100,0.4); }
+.status-pill.is-live-pill   { background: rgba(200,30,30,0.7);   border-color: rgba(255,100,100,0.4); }
+.status-pill.is-replay-pill { background: rgba(74,159,212,0.75); border-color: rgba(150,200,255,0.4); }
 
 .artist {
   font-family: 'Nunito', sans-serif;
@@ -400,15 +429,20 @@ body {
     <div class="live-badge"><div class="live-dot"></div>Live</div>
   </div>
 
+  <div class="wknd-switcher">
+    <button class="wknd-btn active" id="btn-w1" onclick="setWeekend(0)">W1 · Apr 10–12</button>
+    <button class="wknd-btn"        id="btn-w2" onclick="setWeekend(1)">W2 · Apr 17–19</button>
+  </div>
+
   <div class="day-switcher">
     <button class="day-btn" id="btn-fri" onclick="setDay(0)">
-      Fri <span class="day-date">Apr 11 NZT</span>
+      Fri <span class="day-date">Apr 10</span>
     </button>
     <button class="day-btn active" id="btn-sat" onclick="setDay(1)">
-      Sat <span class="day-date">Apr 12 NZT</span>
+      Sat <span class="day-date">Apr 11</span>
     </button>
     <button class="day-btn" id="btn-sun" onclick="setDay(2)">
-      Sun <span class="day-date">Apr 13 NZT</span>
+      Sun <span class="day-date">Apr 12</span>
     </button>
   </div>
 
@@ -475,10 +509,11 @@ const TZ_LIST = [
 ];
 
 // ── COACHELLA DATA ──
-// PDT offsets (UTC-7). Stream IDs TBD for Sat/Sun.
+// PDT offsets (UTC-7). dayOffset: days since festival epoch (Fri Apr 10).
+// W2 is 7 days later so dayOffset 7/8/9.
 const DAYS = [
   {
-    label:'Friday', pdt_date:'Apr 10',
+    label:'Friday', pdt_date:'Apr 10', dayOffset:0, weekend:1,
     stages:[
       {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:'2NA7XUw51oo',yt:'https://www.youtube.com/live/2NA7XUw51oo',
        acts:[{n:'Teddy Swims',s:[17,30],e:[18,20]},{n:'The xx',s:[19,0],e:[19,55]},{n:'Sabrina Carpenter',s:[21,5],e:[22,35]},{n:'Anyma · ÆDEN',s:[24,0],e:[25,0]}]},
@@ -497,7 +532,7 @@ const DAYS = [
     ]
   },
   {
-    label:'Saturday', pdt_date:'Apr 11',
+    label:'Saturday', pdt_date:'Apr 11', dayOffset:1, weekend:1,
     stages:[
       {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:null,yt:'https://www.youtube.com/@coachella/streams',
        acts:[{n:'Addison Rae',s:[17,30],e:[18,20]},{n:'GIVĒON',s:[19,0],e:[19,50]},{n:'The Strokes',s:[21,0],e:[22,10]},{n:'Justin Bieber',s:[23,25],e:[25,0]}]},
@@ -516,7 +551,65 @@ const DAYS = [
     ]
   },
   {
-    label:'Sunday', pdt_date:'Apr 12',
+    label:'Sunday', pdt_date:'Apr 12', dayOffset:2, weekend:1,
+    stages:[
+      {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Tijuana Panthers',s:[16,0],e:[16,50]},{n:'Wet Leg',s:[16,45],e:[17,30]},{n:'Major Lazer',s:[18,10],e:[19,10]},{n:'Young Thug',s:[19,50],e:[20,40]},{n:'Karol G',s:[21,55],e:[23,0]}]},
+      {key:'outdoor',label:'Outdoor Theatre',color:'#4FAF60',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Gigi Perez',s:[16,0],e:[17,0]},{n:'Clipse',s:[17,15],e:[18,15]},{n:'Foster the People',s:[18,45],e:[19,45]},{n:'Laufey',s:[20,40],e:[21,40]},{n:'BIGBANG',s:[22,30],e:[23,30]}]},
+      {key:'sahara',label:'Sahara',color:'#E07028',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Girl Math',s:[16,0],e:[17,0]},{n:'BUNT.',s:[17,5],e:[18,5]},{n:'Duke Dumont',s:[18,10],e:[19,10]},{n:'Mochakk',s:[19,25],e:[20,25]},{n:'Subtronics',s:[21,5],e:[22,5]},{n:'Kaskade',s:[22,45],e:[23,45]}]},
+      {key:'mojave',label:'Mojave',color:'#D03838',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Little Simz',s:[16,25],e:[17,25]},{n:'Suicidal Tendencies',s:[17,35],e:[18,35]},{n:'Samia',s:[18,30],e:[19,30]},{n:'Iggy Pop',s:[19,10],e:[20,10]},{n:'FKA twigs',s:[20,45],e:[21,45]}]},
+      {key:'gobi',label:'Gobi',color:'#D04888',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'COBRAH',s:[16,5],e:[17,0]},{n:'Oklou',s:[17,15],e:[18,10]},{n:'Black Flag',s:[18,30],e:[19,30]},{n:'flowerovlove',s:[19,45],e:[20,30]},{n:'Tomora',s:[20,45],e:[21,30]},{n:'The Rapture',s:[21,5],e:[22,5]},{n:'The Chats',s:[22,0],e:[23,0]}]},
+      {key:'sonora',label:'Sonora',color:'#E07840',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Model/Actriz',s:[16,0],e:[17,0]},{n:'Jane Remover',s:[16,45],e:[17,45]},{n:'Los Retros',s:[17,30],e:[18,30]},{n:'RØZ',s:[18,40],e:[19,40]},{n:'DRAIN',s:[20,0],e:[21,0]},{n:'French Police',s:[21,10],e:[22,10]},{n:'Glitterer',s:[22,15],e:[23,15]}]},
+      {key:'quasar',label:'Quasar',color:'#C8A830',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Jazzy',s:[16,0],e:[18,0]},{n:'Joy (Anonymous)',s:[18,0],e:[20,0]},{n:'Fatboy Slim',s:[20,0],e:[22,0]}]},
+    ]
+  },
+  // ── WEEKEND 2 (Apr 17–19) — same lineup, dayOffset 7/8/9 ──
+  {
+    label:'Friday', pdt_date:'Apr 17', dayOffset:7, weekend:2,
+    stages:[
+      {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Teddy Swims',s:[17,30],e:[18,20]},{n:'The xx',s:[19,0],e:[19,55]},{n:'Sabrina Carpenter',s:[21,5],e:[22,35]},{n:'Anyma · ÆDEN',s:[24,0],e:[25,0]}]},
+      {key:'outdoor',label:'Outdoor Theatre',color:'#4FAF60',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Dabeull',s:[16,0],e:[16,50]},{n:'Lykke Li',s:[17,20],e:[18,10]},{n:'Dijon',s:[18,40],e:[19,30]},{n:'Turnstile',s:[20,5],e:[21,0]},{n:'Disclosure',s:[22,35],e:[23,50]},{n:'Do LaB Bonus',s:[23,55],e:[24,55]}]},
+      {key:'sahara',label:'Sahara',color:'#E07028',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Youna',s:[16,0],e:[16,50]},{n:'HUGEL',s:[16,50],e:[17,50]},{n:'Marlon Hoffstadt',s:[18,15],e:[19,15]},{n:'KATSEYE',s:[20,0],e:[20,45]},{n:'Levity',s:[21,15],e:[22,20]},{n:'Swae Lee',s:[22,50],e:[23,40]},{n:'Sexyy Red',s:[24,5],e:[24,55]}]},
+      {key:'mojave',label:'Mojave',color:'#D03838',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'BINI',s:[16,15],e:[17,0]},{n:'Central Cee',s:[17,30],e:[18,15]},{n:'Devo',s:[18,45],e:[19,40]},{n:'Moby',s:[20,10],e:[21,0]},{n:'Slayyyter',s:[21,20],e:[22,5]},{n:'Ethel Cain',s:[22,35],e:[23,25]},{n:'Blood Orange',s:[23,55],e:[24,45]}]},
+      {key:'gobi',label:'Gobi',color:'#D04888',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Bob Baker Marionettes',s:[16,0],e:[16,40]},{n:'NewDad',s:[16,45],e:[17,25]},{n:'Joyce Manor',s:[17,30],e:[18,10]},{n:'CMAT',s:[18,15],e:[18,55]},{n:'fakemink',s:[19,20],e:[20,0]},{n:'Holly Humberstone',s:[20,25],e:[21,10]},{n:'Joost',s:[21,50],e:[22,35]},{n:'Creepy Nuts',s:[23,5],e:[23,55]}]},
+      {key:'sonora',label:'Sonora',color:'#E07840',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Wednesday',s:[16,0],e:[16,40]},{n:'Fleshwater',s:[16,50],e:[17,30]},{n:'The Two Lips',s:[18,0],e:[18,40]},{n:'Ninajirachi',s:[19,10],e:[20,0]},{n:'Cachirula & Loojan',s:[20,25],e:[21,5]},{n:'February',s:[21,15],e:[21,45]},{n:'Hot Mulligan',s:[22,0],e:[22,45]},{n:'Carolina During',s:[22,55],e:[23,35]},{n:'Not for Radio',s:[23,50],e:[24,50]}]},
+      {key:'quasar',label:'Quasar',color:'#C8A830',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Tiga',s:[17,0],e:[19,0]},{n:'Deep Dish',s:[19,0],e:[21,0]},{n:'PAWSA',s:[21,0],e:[23,0]},{n:'Disco Lines',s:[23,0],e:[25,0]}]},
+    ]
+  },
+  {
+    label:'Saturday', pdt_date:'Apr 18', dayOffset:8, weekend:2,
+    stages:[
+      {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Addison Rae',s:[17,30],e:[18,20]},{n:'GIVĒON',s:[19,0],e:[19,50]},{n:'The Strokes',s:[21,0],e:[22,10]},{n:'Justin Bieber',s:[23,25],e:[25,0]}]},
+      {key:'outdoor',label:'Outdoor Theatre',color:'#4FAF60',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Los Hermanos Flores',s:[16,0],e:[17,0]},{n:'Alex G',s:[17,10],e:[18,0]},{n:'Blondshell',s:[18,10],e:[19,0]},{n:'Sombr',s:[19,5],e:[20,0]},{n:'Labrinth',s:[20,30],e:[21,30]},{n:'David Byrne',s:[22,20],e:[23,30]}]},
+      {key:'sahara',label:'Sahara',color:'#E07028',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Zulan',s:[16,0],e:[17,0]},{n:'Hamdi',s:[17,0],e:[18,0]},{n:'YOASOBI',s:[18,15],e:[19,15]},{n:'TEED',s:[19,15],e:[20,15]},{n:'Nine Inch Noize',s:[20,0],e:[21,0]},{n:'REZZ',s:[21,10],e:[22,15]},{n:'Adriatique',s:[22,30],e:[23,55]},{n:'WORSHIP',s:[23,55],e:[25,0]}]},
+      {key:'mojave',label:'Mojave',color:'#D03838',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Jack White',s:[16,0],e:[17,0]},{n:'Fujii Kaze',s:[16,50],e:[17,50]},{n:'Royel Otis',s:[17,50],e:[18,50]},{n:'Taemin',s:[19,30],e:[20,30]},{n:'PinkPantheress',s:[20,55],e:[21,55]},{n:'Interpol',s:[22,15],e:[23,30]}]},
+      {key:'gobi',label:'Gobi',color:'#D04888',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Whatmore',s:[16,5],e:[17,0]},{n:'Luísa Sonza',s:[17,10],e:[18,10]},{n:'Geese',s:[18,15],e:[19,15]},{n:'Noga Erez',s:[19,5],e:[20,0]},{n:'Davido',s:[19,50],e:[20,50]},{n:'BIA',s:[21,0],e:[22,0]},{n:'Morat',s:[22,10],e:[23,10]}]},
+      {key:'sonora',label:'Sonora',color:'#E07840',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Ecca Vandal',s:[16,20],e:[17,20]},{n:'Ceremony',s:[17,30],e:[18,30]},{n:'Rusowsky',s:[18,40],e:[19,40]},{n:'54 Ultra',s:[19,50],e:[20,50]},{n:'Die Spitz',s:[20,45],e:[21,45]},{n:'Mind Enterprises',s:[21,45],e:[22,45]},{n:'Freak Slug',s:[22,45],e:[23,45]}]},
+      {key:'quasar',label:'Quasar',color:'#C8A830',vid:null,yt:'https://www.youtube.com/@coachella/streams',
+       acts:[{n:'Joezi',s:[17,0],e:[19,0]},{n:'Afrojack x Shimza',s:[19,0],e:[21,0]}]},
+    ]
+  },
+  {
+    label:'Sunday', pdt_date:'Apr 19', dayOffset:9, weekend:2,
     stages:[
       {key:'coachella',label:'Coachella Stage',color:'#4AAFA8',vid:null,yt:'https://www.youtube.com/@coachella/streams',
        acts:[{n:'Tijuana Panthers',s:[16,0],e:[16,50]},{n:'Wet Leg',s:[16,45],e:[17,30]},{n:'Major Lazer',s:[18,10],e:[19,10]},{n:'Young Thug',s:[19,50],e:[20,40]},{n:'Karol G',s:[21,55],e:[23,0]}]},
@@ -540,7 +633,28 @@ const DAYS = [
 let userTz = null;
 let userLabel = null;
 let userOffsetHours = null;
-let currentDay = 1;
+let currentDay = 1; // 0–5 index into DAYS (0-2 = W1, 3-5 = W2)
+
+function smartDefault() {
+  const now = getLocalNowMins();
+  const w2Start = 7 * 1440;
+  if (now >= 3 * 1440 && now < w2Start) { currentDay = 3; return; } // between weekends → W2 preview
+  const base = now >= w2Start ? 3 : 0;
+  let best = base;
+  for (let i = base; i < base + 3; i++) {
+    if (now >= DAYS[i].dayOffset * 1440) best = i;
+  }
+  currentDay = best;
+}
+
+function updateNavBtns() {
+  const w = Math.floor(currentDay / 3), dow = currentDay % 3;
+  ['w1','w2'].forEach((x,i) => document.getElementById('btn-'+x).classList.toggle('active', i===w));
+  ['fri','sat','sun'].forEach((x,i) => document.getElementById('btn-'+x).classList.toggle('active', i===dow));
+  ['fri','sat','sun'].forEach((x,i) => {
+    document.getElementById('btn-'+x).querySelector('.day-date').textContent = DAYS[w*3+i].pdt_date;
+  });
+}
 
 // ── TIMEZONE DETECTION ──
 function detectTz() {
@@ -598,14 +712,19 @@ document.getElementById('tz-picker').addEventListener('click', e => { if(e.targe
 function goMain() {
   document.getElementById('welcome').classList.add('hidden');
   document.getElementById('main').classList.remove('hidden');
+  updateNavBtns();
   render();
 }
 
-function setDay(d) {
-  currentDay = d;
-  ['fri','sat','sun'].forEach((x,i) => {
-    document.getElementById('btn-'+x).classList.toggle('active', i===d);
-  });
+function setDay(dow) {
+  currentDay = Math.floor(currentDay / 3) * 3 + dow;
+  updateNavBtns();
+  render();
+}
+
+function setWeekend(w) {
+  currentDay = w * 3 + (currentDay % 3);
+  updateNavBtns();
   render();
 }
 
@@ -634,28 +753,36 @@ function getLocalNowMins() {
   return elapsed;
 }
 
-function actStartMins(dayIdx, pdtH, pdtM) {
-  // Day 0 = Fri Apr 10, offset 0. Day 1 = Sat, +1440. Day 2 = Sun, +2880
-  const pdtOffset = -7;
-  const utcH = pdtH + pdtM / 60 - pdtOffset;
-  // mins from festival epoch (Fri 4pm PDT = Fri 23:00 UTC = 0)
-  // Fri 4pm PDT = Fri 23:00 UTC. Festival epoch = Fri 23:00 UTC.
-  // actUTC = day*1440 + utcH*60
-  // But festival starts at 16:00 PDT = 23:00 UTC, so subtract 23*60 = 1380
-  return dayIdx * 1440 + utcH * 60 - 1380;
+function actStartMins(dayOffset, pdtH, pdtM) {
+  const utcH = pdtH + pdtM / 60 + 7; // PDT = UTC-7
+  return dayOffset * 1440 + utcH * 60 - 1380;
 }
 
-function getStatus(stage, dayIdx) {
+function getStatus(stage, dayOffset) {
   const nowMins = getLocalNowMins();
-  const acts = [...stage.acts].sort((a,b) => actStartMins(dayIdx,...a.s) - actStartMins(dayIdx,...b.s));
+  const acts = [...stage.acts].sort((a,b) => actStartMins(dayOffset,...a.s) - actStartMins(dayOffset,...b.s));
   for (let i = 0; i < acts.length; i++) {
-    const a = acts[i];
-    const st = actStartMins(dayIdx, ...a.s);
-    const en = actStartMins(dayIdx, ...a.e);
-    if (nowMins >= st && nowMins < en) return { state:'live', current:a, next:acts[i+1]||null };
-    if (nowMins < st) return { state:'upcoming', current:null, next:a, following:acts[i+1]||null };
+    const st = actStartMins(dayOffset, ...acts[i].s);
+    const en = actStartMins(dayOffset, ...acts[i].e);
+    if (nowMins >= st && nowMins < en) return { state:'live',     current:acts[i], next:acts[i+1]||null };
+    if (nowMins < st)                  return { state:'upcoming', current:null,     next:acts[i], following:acts[i+1]||null };
   }
-  return { state:'ended', current:acts[acts.length-1], next:null };
+  // Live stream ended — check if replay is running (replay starts immediately after last act)
+  const first = acts[0], last = acts[acts.length-1];
+  const replayStart  = actStartMins(dayOffset, ...last.e);
+  const streamStart  = actStartMins(dayOffset, ...first.s);
+  const streamLength = replayStart - streamStart;
+  const elapsed      = nowMins - replayStart;
+  if (elapsed >= 0 && elapsed < streamLength) {
+    const virt = streamStart + elapsed;
+    for (let i = 0; i < acts.length; i++) {
+      const st = actStartMins(dayOffset, ...acts[i].s);
+      const en = actStartMins(dayOffset, ...acts[i].e);
+      if (virt >= st && virt < en) return { state:'replay', current:acts[i],  next:acts[i+1]||null };
+      if (virt < st)               return { state:'replay', current:null,      next:acts[i], following:acts[i+1]||null };
+    }
+  }
+  return { state:'ended', current:last, next:null };
 }
 
 // ── RENDER ──
@@ -665,22 +792,27 @@ function render() {
   const day = DAYS[currentDay];
 
   day.stages.forEach(stage => {
-    const { state, current, next, following } = getStatus(stage, currentDay);
-    const isLive = state === 'live', isEnded = state === 'ended';
-    const artist = isLive ? current.n : next ? next.n : (current ? current.n : '—');
-    const nextAct = isLive ? next : (!isEnded ? following : null);
+    const { state, current, next, following } = getStatus(stage, day.dayOffset);
+    const isLive   = state === 'live';
+    const isReplay = state === 'replay';
+    const isEnded  = state === 'ended';
+    const isActive = isLive || isReplay;
+
+    const artist  = isActive ? (current ? current.n : next?.n ?? '—') : next ? next.n : (current ? current.n : '—');
+    const nextAct = isActive ? next : (!isEnded ? following : null);
     const bg = isEnded ? '#888' : stage.color;
 
     const card = document.createElement('a');
-    card.className = 'card' + (isLive?' is-live':'') + (isEnded?' is-ended':'');
+    card.className = 'card' + (isActive?' is-live':'') + (isEnded?' is-ended':'');
     card.href = stage.yt;
     card.target = '_blank';
     card.rel = 'noopener noreferrer';
     card.style.textDecoration = 'none';
 
     let pillTxt, pillClass = '';
-    if (isLive) { pillTxt = '● Live now'; pillClass = 'is-live-pill'; }
-    else if (isEnded) pillTxt = 'Ended';
+    if (isLive)        { pillTxt = '● Live now';  pillClass = 'is-live-pill'; }
+    else if (isReplay) { pillTxt = '↩ Replay';    pillClass = 'is-replay-pill'; }
+    else if (isEnded)  { pillTxt = 'Ended'; }
     else {
       const localStart = next ? pdtToLocal(...next.s) : '';
       pillTxt = `Starts ${localStart}`;
@@ -690,9 +822,7 @@ function render() {
       ? `https://img.youtube.com/vi/${stage.vid}/maxresdefault.jpg`
       : '';
 
-    const nextStr = nextAct
-      ? `<div class="next-line">Next · ${nextAct.n} · ${pdtToLocal(...nextAct.s)}</div>`
-      : '';
+    const nextStr  = nextAct ? `<div class="next-line">Next · ${nextAct.n} · ${pdtToLocal(...nextAct.s)}</div>` : '';
     const endedStr = isEnded ? `<div class="next-line" style="opacity:.4">That's a wrap</div>` : '';
 
     card.innerHTML = `
@@ -729,6 +859,8 @@ function updateClock() {
 
 // ── INIT ──
 detectTz();
+smartDefault();
+updateNavBtns();
 setInterval(updateClock, 1000);
 setInterval(() => { if (!document.getElementById('main').classList.contains('hidden')) render(); }, 30000);
 </script>

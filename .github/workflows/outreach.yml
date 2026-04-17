@@ -1,0 +1,21 @@
+name: Blog outreach
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Override the default outreach message (optional)'
+        required: false
+        default: ''
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Send outreach to configured targets
+        env:
+          OUTREACH_TARGETS: ${{ secrets.OUTREACH_TARGETS }}
+          CUSTOM_MESSAGE: ${{ inputs.message }}
+        run: node .github/scripts/send-outreach.js
