@@ -401,10 +401,10 @@ body {
   </div>
 
   <div class="day-switcher">
-    <button class="day-btn active" id="btn-fri" onclick="setDay(0)">
+    <button class="day-btn" id="btn-fri" onclick="setDay(0)">
       Fri <span class="day-date">Apr 11 NZT</span>
     </button>
-    <button class="day-btn" id="btn-sat" onclick="setDay(1)">
+    <button class="day-btn active" id="btn-sat" onclick="setDay(1)">
       Sat <span class="day-date">Apr 12 NZT</span>
     </button>
     <button class="day-btn" id="btn-sun" onclick="setDay(2)">
@@ -540,7 +540,7 @@ const DAYS = [
 let userTz = null;
 let userLabel = null;
 let userOffsetHours = null;
-let currentDay = 0;
+let currentDay = 1;
 
 // ── TIMEZONE DETECTION ──
 function detectTz() {
@@ -653,7 +653,7 @@ function getStatus(stage, dayIdx) {
     const st = actStartMins(dayIdx, ...a.s);
     const en = actStartMins(dayIdx, ...a.e);
     if (nowMins >= st && nowMins < en) return { state:'live', current:a, next:acts[i+1]||null };
-    if (nowMins < st) return { state:'upcoming', current:null, next:a };
+    if (nowMins < st) return { state:'upcoming', current:null, next:a, following:acts[i+1]||null };
   }
   return { state:'ended', current:acts[acts.length-1], next:null };
 }
@@ -665,10 +665,10 @@ function render() {
   const day = DAYS[currentDay];
 
   day.stages.forEach(stage => {
-    const { state, current, next } = getStatus(stage, currentDay);
+    const { state, current, next, following } = getStatus(stage, currentDay);
     const isLive = state === 'live', isEnded = state === 'ended';
     const artist = isLive ? current.n : next ? next.n : (current ? current.n : '—');
-    const nextAct = isLive ? next : null;
+    const nextAct = isLive ? next : (!isEnded ? following : null);
     const bg = isEnded ? '#888' : stage.color;
 
     const card = document.createElement('a');
